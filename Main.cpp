@@ -1,8 +1,7 @@
+#include "Steganography.hpp"
+
 #include <iostream>
-#include <string>
 #include <cstring>
-#include <vector>
-#include "LSB.hpp"
 
 /**
 arg[1] - either -e to encode, or -d to decode
@@ -15,7 +14,6 @@ arg[1] - either -e to encode, or -d to decode
         argv[3] is the key
 **/
 int main(int argc, char** argv) {
-
     if(argc == 1) {
         std::cout << "Enter arguments\n";
     } else {
@@ -32,6 +30,5 @@ int main(int argc, char** argv) {
             std::cout << message << "\n";
         }
     }
-   
     return 0;
 }

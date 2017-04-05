@@ -1,4 +1,4 @@
-#include "LSB.hpp"
+#include "Steganography.hpp"
 
 #include <random>
 #include <algorithm>
@@ -47,21 +47,23 @@ cv::Mat LSB :: embed() {
     std::map<std::pair<uint32_t, uint32_t>, bool> visited;
     cv::Mat stego_img = m_image.clone();
     uint32_t rows = stego_img.rows;
-    uint32_t cols = stego_img.cols;
+    uint32_t cols = stego_img.cols * stego_img.channels();
+
+	if(stego_img.isContinuous()) {
+		cols *= rows;
+		rows = 1;
+	}
 
     for(bool b : m_message) {
         std::pair<uint32_t, uint32_t> point = std::make_pair(PRNG() % rows, PRNG() % cols);
         while(visited[point]) {
             point = std::make_pair(PRNG() % rows, PRNG() % cols);
         }
+
         visited[point] = true;
 
-        uint32_t channel_no = PRNG() % 3;
-        while(stego_img.at<cv::Vec3b>(point.first, point.second).val[channel_no] == 0) {
-            channel_no = PRNG() % 3;
-        }
-        if( (stego_img.at<cv::Vec3b>(point.first, point.second).val[channel_no] & 1) != b) {
-            stego_img.at<cv::Vec3b>(point.first, point.second).val[channel_no] = flipLSB(stego_img.at<cv::Vec3b>(point.first, point.second).val[channel_no]);
+        if( (stego_img.at<uchar>(point.first, point.second) & 1) != b) {
+            stego_img.at<uchar>(point.first, point.second) = flipLSB(stego_img.at<uchar>(point.first, point.second));
         }
     }
     return stego_img;
@@ -73,22 +75,25 @@ std::string LSB :: extract() {
     std::map<std::pair<uint32_t, uint32_t>, bool> visited;
     std::bitset<8> byte(0);
     uint32_t rows = m_image.rows;
-    uint32_t cols = m_image.cols;
+    uint32_t cols = m_image.cols * m_image.channels();
+
+	if(m_image.isContinuous()) {
+		cols *= rows;
+		rows = 1;
+	}
 
     while(byte.to_ulong() != 27) {
         message.push_back(static_cast<char>(byte.to_ulong()));
 
-        for(uint32_t i = 0, pos = 7; i < 8; ++i, --pos) {
+        for(int32_t pos = 7; pos >= 0; --pos) {
             std::pair<uint32_t, uint32_t> point = std::make_pair(PRNG() % rows, PRNG() % cols);
             while(visited[point]) {
                 point = std::make_pair(PRNG() % rows, PRNG() % cols);
             }
+
             visited[point] = true;
-            uint32_t channel_no = PRNG() % 3;
-            while(m_image.at<cv::Vec3b>(point.first, point.second).val[channel_no] == 0) {
-                channel_no = PRNG() % 3;
-            }
-            byte[pos] = (m_image.at<cv::Vec3b>(point.first, point.second).val[channel_no] & 1);
+
+            byte[pos] = (m_image.at<uchar>(point.first, point.second) & 1);
         }
     }
     return message.substr(1);
