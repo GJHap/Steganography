@@ -12,9 +12,9 @@ find_package(OpenCV REQUIRED)
 set(SOURCE_LIST
     ".gitignore"
     "CMakeLists.txt"
-    "Main.cpp"
-    "Steganography.cpp"
-    "Steganography.hpp"
+    "src/Main.cpp"
+    "src/Steganography.cpp"
+    "src/Steganography.hpp"
     )
 
 add_executable(${PROJECT_NAME} ${SOURCE_LIST})
