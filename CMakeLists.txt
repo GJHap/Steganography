@@ -12,6 +12,8 @@ find_package(OpenCV REQUIRED)
 set(SOURCE_LIST
     ".gitignore"
     "CMakeLists.txt"
+    "LICENSE"
+    "README.md"
     "src/Main.cpp"
     "src/Steganography.cpp"
     "src/Steganography.hpp"
